@@ -131,10 +131,12 @@ export async function generateCommitMsg(arg) {
         } else {
           throw new Error('Failed to generate commit message');
         }
-      } catch (err) {
-        let errorMessage = 'An unexpected error occurred';
+      } catch (err: any) {
+        let errorMessage =
+          (err instanceof Error && err.message) ||
+          (typeof err === 'string' ? err : 'An unexpected error occurred');
 
-        if (aiProvider === 'openai' && err.response?.status) {
+        if (aiProvider === 'openai' && err?.response?.status) {
           switch (err.response.status) {
             case 401:
               errorMessage = 'Invalid OpenAI API key or unauthorized access';
@@ -150,7 +152,8 @@ export async function generateCommitMsg(arg) {
               break;
           }
         } else if (aiProvider === 'gemini') {
-          errorMessage = `Gemini API error: ${err.message}`;
+          const message = err instanceof Error ? err.message : String(err);
+          errorMessage = `Gemini API error: ${message}`;
         }
 
         throw new Error(errorMessage);
