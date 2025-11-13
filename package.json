@@ -1,7 +1,7 @@
 {
   "name": "ai-commit",
   "displayName": "AI Commit",
-  "description": "Use Azure/OpenAI API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.",
+  "description": "Use Azure/OpenAI/Gemini/Claude API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.",
   "version": "0.1.1",
   "engines": {
     "node": ">=16",
@@ -14,6 +14,9 @@
     "Azure",
     "OpenAI",
     "ChatGPT",
+    "Gemini",
+    "Claude",
+    "Anthropic",
     "GitEmoji",
     "Git Commit",
     "Conventional Commits",
@@ -128,10 +131,11 @@
         "ai-commit.AI_PROVIDER": {
           "type": "string",
           "default": "openai",
-          "description": "AI Provider to use (OpenAI or Gemini)",
+          "description": "AI Provider to use (OpenAI, Gemini, or Claude)",
           "enum": [
             "openai",
-            "gemini"
+            "gemini",
+            "claude"
           ]
         },
         "ai-commit.GEMINI_API_KEY": {
@@ -150,6 +154,23 @@
           "minimum": 0,
           "maximum": 2,
           "description": "Gemini temperature setting (0-2). Controls randomness."
+        },
+        "ai-commit.CLAUDE_API_KEY": {
+          "type": "string",
+          "default": "",
+          "description": "Claude API Key (optional). Leave empty to use Claude CLI (authenticated via 'claude setup-token'), or provide an Anthropic API key for direct API access."
+        },
+        "ai-commit.CLAUDE_MODEL": {
+          "type": "string",
+          "default": "claude-sonnet-4-5-20250929",
+          "description": "Claude Model to use"
+        },
+        "ai-commit.CLAUDE_TEMPERATURE": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Claude temperature setting (0-1). Controls randomness."
         }
       },
       "title": "AI Commit"
@@ -195,6 +216,7 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
     "@google/generative-ai": "^0.21.0",
     "fs-extra": "^11.0.4",
     "openai": "^4.14.2",

@@ -7,6 +7,7 @@ import { ChatGPTAPI } from './openai-utils';
 import { getMainCommitPrompt } from './prompts';
 import { ProgressHandler } from './utils';
 import { GeminiAPI } from './gemini-utils';
+import { ClaudeAPI } from './claude-utils';
 
 /**
  * Generates a chat completion prompt for the commit message based on the provided diff.
@@ -117,6 +118,9 @@ export async function generateCommitMsg(arg) {
             throw new Error('Gemini API Key not configured');
           }
           commitMessage = await GeminiAPI(messages);
+        } else if (aiProvider === 'claude') {
+          // Claude uses CLI, no API key needed (already authenticated via 'claude setup-token')
+          commitMessage = await ClaudeAPI(messages);
         } else {
           const openaiApiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
           if (!openaiApiKey) {
@@ -151,6 +155,8 @@ export async function generateCommitMsg(arg) {
           }
         } else if (aiProvider === 'gemini') {
           errorMessage = `Gemini API error: ${err.message}`;
+        } else if (aiProvider === 'claude') {
+          errorMessage = `Claude API error: ${err.message}`;
         }
 
         throw new Error(errorMessage);
