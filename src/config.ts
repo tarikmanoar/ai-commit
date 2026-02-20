@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { createOpenAIApi } from './openai-utils';
 import { createGeminiAPIClient } from './gemini-utils';
+import { Logger } from './logger';
 
 /**
  * Configuration keys used in the AI commit extension.
@@ -91,7 +92,7 @@ export class ConfigurationManager {
         await config.update('OPENAI_MODEL', 'gpt-4', vscode.ConfigurationTarget.Global);
       }
     } catch (error) {
-      console.error('Failed to fetch OpenAI models:', error);
+      Logger.error('Failed to fetch OpenAI models:', error);
     }
   }
 

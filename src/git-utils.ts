@@ -1,5 +1,6 @@
 import simpleGit from 'simple-git';
 import * as vscode from 'vscode';
+import { Logger } from './logger';
 
 /**
  * Retrieves the staged changes from the Git repository.
@@ -23,7 +24,7 @@ export async function getDiffStaged(
       error: null
     };
   } catch (error) {
-    console.error('Error reading Git diff:', error);
+    Logger.error('Error reading Git diff:', error);
     return { diff: '', error: error.message };
   }
 }

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { generateCommitMsg } from './generate-commit-msg';
 import { ConfigurationManager } from './config';
+import { Logger } from './logger';
 
 /**
  * Manages the registration and disposal of commands.
@@ -55,8 +56,10 @@ export class CommandManager {
   private registerCommand(command: string, handler: (...args: any[]) => any) {
     const disposable = vscode.commands.registerCommand(command, async (...args) => {
       try {
+        Logger.info(`Executing command: ${command}`);
         await handler(...args);
       } catch (error) {
+        Logger.error(`Command '${command}' failed:`, error);
         const result = await vscode.window.showErrorMessage(
           `Failed: ${error.message}`,
           'Retry',
