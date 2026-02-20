@@ -135,22 +135,27 @@ export async function generateCommitMsg(arg) {
           throw new Error('Failed to generate commit message');
         }
       } catch (err) {
-        let errorMessage = 'An unexpected error occurred';
+        Logger.error(`${aiProvider} API call failed:`, err);
 
-        if (aiProvider === 'openai' && err.response?.status) {
-          switch (err.response.status) {
-            case 401:
-              errorMessage = 'Invalid OpenAI API key or unauthorized access';
-              break;
-            case 429:
-              errorMessage = 'Rate limit exceeded. Please try again later';
-              break;
-            case 500:
-              errorMessage = 'OpenAI server error. Please try again later';
-              break;
-            case 503:
-              errorMessage = 'OpenAI service is temporarily unavailable';
-              break;
+        let errorMessage = err.message || 'An unexpected error occurred';
+
+        if (aiProvider === 'openai') {
+          const status = err.response?.status || err.status;
+          if (status) {
+            switch (status) {
+              case 401:
+                errorMessage = 'Invalid OpenAI API key or unauthorized access';
+                break;
+              case 429:
+                errorMessage = 'Rate limit exceeded. Please try again later';
+                break;
+              case 500:
+                errorMessage = 'OpenAI server error. Please try again later';
+                break;
+              case 503:
+                errorMessage = 'OpenAI service is temporarily unavailable';
+                break;
+            }
           }
         } else if (aiProvider === 'gemini') {
           errorMessage = `Gemini API error: ${err.message}`;
