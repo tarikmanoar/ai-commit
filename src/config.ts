@@ -4,10 +4,11 @@ import { createGeminiAPIClient } from './gemini-utils';
 
 /**
  * Configuration keys used in the AI commit extension.
+ * Supports OpenAI models including GPT-4, GPT-4o, GPT-4o-mini, and GPT-5/o-series reasoning models.
  * @constant {Object}
  * @property {string} OPENAI_API_KEY - The key for OpenAI API.
  * @property {string} OPENAI_BASE_URL - The base URL for OpenAI API.
- * @property {string} OPENAI_MODEL - The model used for OpenAI.
+ * @property {string} OPENAI_MODEL - The model used for OpenAI (supports GPT-4, GPT-4o, GPT-4o-mini, o1, o3, and GPT-5 when available).
  * @property {string} AZURE_API_VERSION - The version of Azure API.
  * @property {string} AI_COMMIT_LANGUAGE - The language for AI commit messages.
  * @property {string} SYSTEM_PROMPT - The system prompt for generating commit messages.
@@ -26,6 +27,13 @@ export enum ConfigKeys {
   GEMINI_MODEL = 'GEMINI_MODEL',
   GEMINI_TEMPERATURE = 'GEMINI_TEMPERATURE',
   AI_PROVIDER = 'AI_PROVIDER',
+
+  // OpenAI API type: 'completion' for Chat Completions, 'response' for Responses API
+  OPENAI_API_TYPE = 'OPENAI_API_TYPE',
+  // Reasoning effort for Responses API (o-series and GPT-5 models)
+  OPENAI_REASONING_EFFORT = 'OPENAI_REASONING_EFFORT',
+  // Text verbosity for Responses API
+  OPENAI_TEXT_VERBOSITY = 'OPENAI_TEXT_VERBOSITY',
 }
 
 /**

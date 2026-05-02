@@ -110,7 +110,7 @@
         },
         "ai-commit.OPENAI_MODEL": {
           "default": "gpt-4o",
-          "description": "OpenAI MODEL, you can select a model from the list by running the 'Show Available OpenAI Models' command",
+          "description": "OpenAI MODEL, you can select a model from the list by running the 'Show Available OpenAI Models' command. Supports GPT-4, GPT-4o, GPT-4o-mini, and GPT-5 models.",
           "type": "string"
         },
         "ai-commit.AI_COMMIT_SYSTEM_PROMPT": {
@@ -150,6 +150,51 @@
           "minimum": 0,
           "maximum": 2,
           "description": "Gemini temperature setting (0-2). Controls randomness."
+        },
+        "ai-commit.OPENAI_API_TYPE": {
+          "type": "string",
+          "default": "completion",
+          "description": "OpenAI API type. 'completion' uses Chat Completions API (default, for GPT-4, GPT-4o). 'response' uses Responses API (recommended for GPT-5 and o-series reasoning models).",
+          "enum": [
+            "completion",
+            "response"
+          ],
+          "enumDescriptions": [
+            "Chat Completions API - Default endpoint for GPT-4, GPT-4o, GPT-4o-mini",
+            "Responses API - Recommended for GPT-5 and o-series reasoning models"
+          ]
+        },
+        "ai-commit.OPENAI_REASONING_EFFORT": {
+          "type": "string",
+          "default": "medium",
+          "description": "Reasoning effort for Responses API (GPT-5, o-series models). Controls how much reasoning the model performs.",
+          "enum": [
+            "minimal",
+            "low",
+            "medium",
+            "high"
+          ],
+          "enumDescriptions": [
+            "Minimal - Fastest, for simple deterministic tasks",
+            "Low - Quick responses, for classification/extraction",
+            "Medium - Balanced quality, latency, and cost (default)",
+            "High - Best accuracy for complex planning/agents"
+          ]
+        },
+        "ai-commit.OPENAI_TEXT_VERBOSITY": {
+          "type": "string",
+          "default": "medium",
+          "description": "Text verbosity for Responses API (GPT-5, o-series models). Controls length and detail of the final answer.",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "enumDescriptions": [
+            "Low - Compact responses for UI/chat widgets",
+            "Medium - Normal assistant output (default)",
+            "High - Detailed for audits/documentation"
+          ]
         }
       },
       "title": "AI Commit"
@@ -197,7 +242,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "fs-extra": "^11.0.4",
-    "openai": "^4.14.2",
+    "openai": "^6.35.0",
     "simple-git": "^3.17.0"
   },
   "resolutions": {
