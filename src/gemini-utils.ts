@@ -3,32 +3,30 @@ import { ConfigKeys, ConfigurationManager } from './config';
 
 /**
  * Creates and returns a Gemini API configuration object.
- * @returns {Object} - The Gemini API configuration object.
+ * API key is retrieved from secure SecretStorage.
+ * @returns {Promise<Object>} - Promise resolving to Gemini configuration object.
  * @throws {Error} - Throws an error if the API key is missing or empty.
  */
-function getGeminiConfig() {
+async function getGeminiConfig() {
   const configManager = ConfigurationManager.getInstance();
-  const apiKey = configManager.getConfig<string>(ConfigKeys.GEMINI_API_KEY);
+  const apiKey = await configManager.getGeminiApiKey();
 
   if (!apiKey) {
-    throw new Error('The GEMINI_API_KEY environment variable is missing or empty.');
+    throw new Error('Gemini API Key not configured. Please set your API key using the "Set Gemini API Key" command.');
   }
 
-  const config: {
-    apiKey: string;
-  } = {
+  return {
     apiKey
   };
-
-  return config;
 }
 
 /**
  * Creates and returns a Gemini API instance.
- * @returns {GoogleGenerativeAI} - The Gemini API instance.
+ * API key is retrieved from secure SecretStorage.
+ * @returns {Promise<GoogleGenerativeAI>} - Promise resolving to Gemini API instance.
  */
-export function createGeminiAPIClient() {
-  const config = getGeminiConfig();
+export async function createGeminiAPIClient(): Promise<GoogleGenerativeAI> {
+  const config = await getGeminiConfig();
   return new GoogleGenerativeAI(config.apiKey);
 }
 
@@ -39,7 +37,7 @@ export function createGeminiAPIClient() {
  */
 export async function GeminiAPI(messages: any[]) {
   try {
-    const gemini = createGeminiAPIClient();
+    const gemini = await createGeminiAPIClient();
     const configManager = ConfigurationManager.getInstance();
     const modelName = configManager.getConfig<string>(ConfigKeys.GEMINI_MODEL);
     const temperature = configManager.getConfig<number>(ConfigKeys.GEMINI_TEMPERATURE, 0.7);

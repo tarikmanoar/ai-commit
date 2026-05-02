@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { generateCommitMsg } from './generate-commit-msg';
-import { ConfigurationManager } from './config';
+import { ConfigurationManager, SecretKeys } from './config';
 
 /**
  * Manages the registration and disposal of commands.
@@ -27,6 +27,78 @@ export class CommandManager {
       if (selected) {
         const config = vscode.workspace.getConfiguration('ai-commit');
         await config.update('OPENAI_MODEL', selected, vscode.ConfigurationTarget.Global);
+      }
+    });
+
+    // Set OpenAI API Key securely
+    this.registerCommand('ai-commit.setOpenAIApiKey', async () => {
+      const configManager = ConfigurationManager.getInstance();
+      const apiKey = await vscode.window.showInputBox({
+        prompt: 'Enter your OpenAI API Key',
+        ignoreFocusOut: true,
+        password: true,
+        validateInput: (value) => {
+          if (!value || value.trim() === '') {
+            return 'API Key cannot be empty';
+          }
+          return null;
+        }
+      });
+
+      if (apiKey) {
+        await configManager.setSecret(SecretKeys.OPENAI_API_KEY, apiKey);
+        vscode.window.showInformationMessage('OpenAI API Key saved securely.');
+      }
+    });
+
+    // Set Gemini API Key securely
+    this.registerCommand('ai-commit.setGeminiApiKey', async () => {
+      const configManager = ConfigurationManager.getInstance();
+      const apiKey = await vscode.window.showInputBox({
+        prompt: 'Enter your Gemini API Key',
+        ignoreFocusOut: true,
+        password: true,
+        validateInput: (value) => {
+          if (!value || value.trim() === '') {
+            return 'API Key cannot be empty';
+          }
+          return null;
+        }
+      });
+
+      if (apiKey) {
+        await configManager.setSecret(SecretKeys.GEMINI_API_KEY, apiKey);
+        vscode.window.showInformationMessage('Gemini API Key saved securely.');
+      }
+    });
+
+    // Clear OpenAI API Key
+    this.registerCommand('ai-commit.clearOpenAIApiKey', async () => {
+      const result = await vscode.window.showWarningMessage(
+        'Are you sure you want to clear your OpenAI API Key?',
+        'Yes',
+        'Cancel'
+      );
+
+      if (result === 'Yes') {
+        const configManager = ConfigurationManager.getInstance();
+        await configManager.deleteSecret(SecretKeys.OPENAI_API_KEY);
+        vscode.window.showInformationMessage('OpenAI API Key cleared.');
+      }
+    });
+
+    // Clear Gemini API Key
+    this.registerCommand('ai-commit.clearGeminiApiKey', async () => {
+      const result = await vscode.window.showWarningMessage(
+        'Are you sure you want to clear your Gemini API Key?',
+        'Yes',
+        'Cancel'
+      );
+
+      if (result === 'Yes') {
+        const configManager = ConfigurationManager.getInstance();
+        await configManager.deleteSecret(SecretKeys.GEMINI_API_KEY);
+        vscode.window.showInformationMessage('Gemini API Key cleared.');
       }
     });
 

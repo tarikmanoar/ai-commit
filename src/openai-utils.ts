@@ -1,11 +1,12 @@
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
-import { ConfigKeys, ConfigurationManager } from './config';
+import { ConfigKeys, ConfigurationManager, SecretKeys } from './config';
 
 /**
  * OpenAI API configuration and utilities.
  * Supports GPT-4, GPT-4o, GPT-4o-mini via Chat Completions API,
  * and GPT-5, o-series models via Responses API.
+ * API keys are securely stored using VS Code's SecretStorage.
  */
 
 // Models that require the Responses API (GPT-5 and o-series reasoning models)
@@ -36,17 +37,18 @@ export function requiresResponsesAPI(model: string): boolean {
 
 /**
  * Creates and returns an OpenAI configuration object.
- * @returns {Object} - The OpenAI configuration object.
+ * API key is retrieved from secure SecretStorage.
+ * @returns {Promise<Object>} - Promise resolving to OpenAI configuration object.
  * @throws {Error} - Throws an error if the API key is missing or empty.
  */
-function getOpenAIConfig() {
+async function getOpenAIConfig() {
   const configManager = ConfigurationManager.getInstance();
-  const apiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
+  const apiKey = await configManager.getOpenAIApiKey();
   const baseURL = configManager.getConfig<string>(ConfigKeys.OPENAI_BASE_URL);
   const apiVersion = configManager.getConfig<string>(ConfigKeys.AZURE_API_VERSION);
 
   if (!apiKey) {
-    throw new Error('The OPENAI_API_KEY environment variable is missing or empty.');
+    throw new Error('OpenAI API Key not configured. Please set your API key using the "Set OpenAI API Key" command.');
   }
 
   const config: {
@@ -71,10 +73,11 @@ function getOpenAIConfig() {
 
 /**
  * Creates and returns an OpenAI API instance.
- * @returns {OpenAI} - The OpenAI API instance.
+ * API key is retrieved from secure SecretStorage.
+ * @returns {Promise<OpenAI>} - Promise resolving to OpenAI API instance.
  */
-export function createOpenAIApi() {
-  const config = getOpenAIConfig();
+export async function createOpenAIApi(): Promise<OpenAI> {
+  const config = await getOpenAIConfig();
   return new OpenAI(config);
 }
 
@@ -85,7 +88,7 @@ export function createOpenAIApi() {
  * @returns {Promise<string>} - A promise that resolves to the API response text.
  */
 async function chatWithResponsesAPI(messages: ChatCompletionMessageParam[]): Promise<string> {
-  const openai = createOpenAIApi();
+  const openai = await createOpenAIApi();
   const configManager = ConfigurationManager.getInstance();
   const model = configManager.getConfig<string>(ConfigKeys.OPENAI_MODEL);
   const reasoningEffort = configManager.getConfig<string>(ConfigKeys.OPENAI_REASONING_EFFORT, 'medium');
@@ -137,7 +140,7 @@ async function chatWithResponsesAPI(messages: ChatCompletionMessageParam[]): Pro
  * @returns {Promise<string>} - A promise that resolves to the API response.
  */
 async function chatWithCompletionsAPI(messages: ChatCompletionMessageParam[]): Promise<string> {
-  const openai = createOpenAIApi();
+  const openai = await createOpenAIApi();
   const configManager = ConfigurationManager.getInstance();
   const model = configManager.getConfig<string>(ConfigKeys.OPENAI_MODEL);
   const temperature = configManager.getConfig<number>(ConfigKeys.OPENAI_TEMPERATURE, 0.7);

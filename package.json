@@ -42,6 +42,22 @@
       {
         "command": "ai-commit.showAvailableModels",
         "title": "Show Available OpenAI Models"
+      },
+      {
+        "command": "ai-commit.setOpenAIApiKey",
+        "title": "Set OpenAI API Key (Secure)"
+      },
+      {
+        "command": "ai-commit.setGeminiApiKey",
+        "title": "Set Gemini API Key (Secure)"
+      },
+      {
+        "command": "ai-commit.clearOpenAIApiKey",
+        "title": "Clear OpenAI API Key"
+      },
+      {
+        "command": "ai-commit.clearGeminiApiKey",
+        "title": "Clear Gemini API Key"
       }
     ],
     "configuration": {
@@ -98,11 +114,6 @@
           "description": "AZURE API VERSION",
           "type": "string"
         },
-        "ai-commit.OPENAI_API_KEY": {
-          "default": "",
-          "description": "OpenAI API Key",
-          "type": "string"
-        },
         "ai-commit.OPENAI_BASE_URL": {
           "default": "",
           "description": "OpenAI BASE URL",
@@ -133,11 +144,6 @@
             "openai",
             "gemini"
           ]
-        },
-        "ai-commit.GEMINI_API_KEY": {
-          "type": "string",
-          "default": "",
-          "description": "Gemini API Key"
         },
         "ai-commit.GEMINI_MODEL": {
           "type": "string",

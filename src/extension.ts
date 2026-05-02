@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CommandManager } from './commands';
-import { ConfigurationManager } from './config';
+import { ConfigurationManager, SecretKeys } from './config';
 
 /**
  * Activates the extension and registers commands.
@@ -21,19 +21,17 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     });
 
-    const apiKey = configManager.getConfig<string>('OPENAI_API_KEY');
+    // Check if API key is configured (using SecretStorage)
+    const apiKey = await configManager.getOpenAIApiKey();
     if (!apiKey) {
       const result = await vscode.window.showWarningMessage(
-        'OpenAI API Key not configured. Would you like to configure it now?',
-        'Yes',
-        'No'
+        'OpenAI API Key not configured. Would you like to set it now?',
+        'Set API Key',
+        'Later'
       );
 
-      if (result === 'Yes') {
-        await vscode.commands.executeCommand(
-          'workbench.action.openSettings',
-          'ai-commit.OPENAI_API_KEY'
-        );
+      if (result === 'Set API Key') {
+        await vscode.commands.executeCommand('ai-commit.setOpenAIApiKey');
       }
     }
   } catch (error) {

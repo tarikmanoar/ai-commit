@@ -108,52 +108,29 @@ export async function generateCommitMsg(arg) {
           ? 'Generating commit message with additional context...'
           : 'Generating commit message...'
       });
-      try {
-        let commitMessage: string | undefined;
+      
+      let commitMessage: string | undefined;
 
-        if (aiProvider === 'gemini') {
-          const geminiApiKey = configManager.getConfig<string>(ConfigKeys.GEMINI_API_KEY);
-          if (!geminiApiKey) {
-            throw new Error('Gemini API Key not configured');
-          }
-          commitMessage = await GeminiAPI(messages);
-        } else {
-          const openaiApiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
-          if (!openaiApiKey) {
-            throw new Error('OpenAI API Key not configured');
-          }
-          commitMessage = await ChatGPTAPI(messages as ChatCompletionMessageParam[]);
+      if (aiProvider === 'gemini') {
+        // Check Gemini API key from SecretStorage
+        const geminiApiKey = await configManager.getGeminiApiKey();
+        if (!geminiApiKey) {
+          throw new Error('Gemini API Key not configured. Use the "Set Gemini API Key (Secure)" command to set it.');
         }
-
-
-        if (commitMessage) {
-          scmInputBox.value = commitMessage;
-        } else {
-          throw new Error('Failed to generate commit message');
+        commitMessage = await GeminiAPI(messages);
+      } else {
+        // Check OpenAI API key from SecretStorage
+        const openaiApiKey = await configManager.getOpenAIApiKey();
+        if (!openaiApiKey) {
+          throw new Error('OpenAI API Key not configured. Use the "Set OpenAI API Key (Secure)" command to set it.');
         }
-      } catch (err) {
-        let errorMessage = 'An unexpected error occurred';
+        commitMessage = await ChatGPTAPI(messages as ChatCompletionMessageParam[]);
+      }
 
-        if (aiProvider === 'openai' && err.response?.status) {
-          switch (err.response.status) {
-            case 401:
-              errorMessage = 'Invalid OpenAI API key or unauthorized access';
-              break;
-            case 429:
-              errorMessage = 'Rate limit exceeded. Please try again later';
-              break;
-            case 500:
-              errorMessage = 'OpenAI server error. Please try again later';
-              break;
-            case 503:
-              errorMessage = 'OpenAI service is temporarily unavailable';
-              break;
-          }
-        } else if (aiProvider === 'gemini') {
-          errorMessage = `Gemini API error: ${err.message}`;
-        }
-
-        throw new Error(errorMessage);
+      if (commitMessage) {
+        scmInputBox.value = commitMessage;
+      } else {
+        throw new Error('Failed to generate commit message');
       }
     } catch (error) {
       throw error;

@@ -62,7 +62,6 @@ In the VSCode settings, locate the "ai-commit" configuration options and configu
 | Configuration         |  Type  |       Default        | Required |                                                                                         Notes                                                                                         |
 | :-------------------- | :----: | :------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | AI_PROVIDER           | string |        openai        |   Yes    |                                                            Select AI Provider: `openai` or `gemini`.                                                             |
-| OPENAI_API_KEY        | string |         None         |   Yes    |       Required when `AI Provider` is set to `OpenAI`. [OpenAI token](https://platform.openai.com/account/api-keys)       |
 | OPENAI_BASE_URL       | string |         None         |    No    |                   If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}                    |
 | OPENAI_MODEL          | string |        gpt-4o        |   Yes    |        OpenAI MODEL, you can select a model from the list by running the `Show Available OpenAI Models` command         |
 | OPENAI_API_TYPE       | string |      completion      |    No    |      Choose API type: `completion` (Chat Completions API) or `response` (Responses API with reasoning controls).        |
@@ -70,11 +69,25 @@ In the VSCode settings, locate the "ai-commit" configuration options and configu
 | OPENAI_TEXT_VERBOSITY | string |       medium         |    No    |          Only for `response` API type. Controls output length: `low` compact, `medium` standard, `high` verbose.          |
 | AZURE_API_VERSION     | string |         None         |    No    |                                                                             AZURE_API_VERSION                                                                              |
 | OPENAI_TEMPERATURE    | number |         0.7          |    No    |       Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative        |
-| GEMINI_API_KEY        | string |         None         |   Yes    |      Required when `AI Provider` is set to `Gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)      |
 | GEMINI_MODEL          | string | gemini-2.0-flash-001 |   Yes    |                        Gemini MODEL. Currently, model selection is limited to configuration.                         |
 | GEMINI_TEMPERATURE    | number |         0.7          |    No    |    Controls randomness in the output. Range: 0-2 for Gemini. Lower values: more focused, Higher values: more creative    |
 | AI_COMMIT_LANGUAGE     | string |          en          |   Yes    |                                                                               Supports 19 languages                                                                               |
 | SYSTEM_PROMPT         | string |         None         |    No    |                                                                               Custom system prompt                                                                               |
+
+### 🔐 Secure API Key Storage
+
+API keys are stored securely using VS Code's **SecretStorage** (backed by OS keychain: Keychain on macOS, Credential Manager on Windows). Keys are never stored in settings files or synced.
+
+**Commands for API Key Management:**
+- `Set OpenAI API Key (Secure)` - Securely store your OpenAI API key
+- `Set Gemini API Key (Secure)` - Securely store your Gemini API key  
+- `Clear OpenAI API Key` - Remove stored OpenAI API key
+- `Clear Gemini API Key` - Remove stored Gemini API key
+
+**Why SecretStorage?**
+- Keys never appear in `settings.json`, logs, or synced settings
+- Backed by OS-level encryption (Keychain/Credential Manager)
+- Independent of workspace and not exposed in configuration
 
 ### API Type Guide
 
