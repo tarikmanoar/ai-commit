@@ -59,19 +59,35 @@ Use OpenAI / Azure OpenAI / DeepSeek / Gemini API to review Git changes, generat
 
 In the VSCode settings, locate the "ai-commit" configuration options and configure them as needed:
 
-| Configuration      |  Type  |       Default        | Required |                                                       Notes                                                        |
-| :----------------- | :----: | :------------------: | :------: | :----------------------------------------------------------------------------------------------------------------: |
-| AI_PROVIDER        | string |        openai        |   Yes    |                                     Select AI Provider: `openai` or `gemini`.                                      |
-| OPENAI_API_KEY     | string |         None         |   Yes    |    Required when `AI Provider` is set to `OpenAI`. [OpenAI token](https://platform.openai.com/account/api-keys)    |
-| OPENAI_BASE_URL    | string |         None         |    No    |                If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}                 |
-| OPENAI_MODEL       | string |        gpt-4o        |   Yes    |      OpenAI MODEL, you can select a model from the list by running the `Show Available OpenAI Models` command      |
-| AZURE_API_VERSION  | string |         None         |    No    |                                                 AZURE_API_VERSION                                                  |
-| OPENAI_TEMPERATURE | number |         0.7          |    No    |      Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative       |
-| GEMINI_API_KEY     | string |         None         |   Yes    |     Required when `AI Provider` is set to `Gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)     |
-| GEMINI_MODEL       | string | gemini-2.0-flash-001 |   Yes    |                       Gemini MODEL. Currently, model selection is limited to configuration.                        |
-| GEMINI_TEMPERATURE | number |         0.7          |    No    | Controls randomness in the output. Range: 0-2 for Gemini. Lower values: more focused, Higher values: more creative |
-| AI_COMMIT_LANGUAGE | string |          en          |   Yes    |                                               Supports 19 languages                                                |
-| SYSTEM_PROMPT      | string |         None         |    No    |                                                Custom system prompt                                                |
+| Configuration         |  Type  |       Default        | Required |                                                                                         Notes                                                                                         |
+| :-------------------- | :----: | :------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| AI_PROVIDER           | string |        openai        |   Yes    |                                                            Select AI Provider: `openai` or `gemini`.                                                             |
+| OPENAI_API_KEY        | string |         None         |   Yes    |       Required when `AI Provider` is set to `OpenAI`. [OpenAI token](https://platform.openai.com/account/api-keys)       |
+| OPENAI_BASE_URL       | string |         None         |    No    |                   If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}                    |
+| OPENAI_MODEL          | string |        gpt-4o        |   Yes    |        OpenAI MODEL, you can select a model from the list by running the `Show Available OpenAI Models` command         |
+| OPENAI_API_TYPE       | string |      completion      |    No    |      Choose API type: `completion` (Chat Completions API) or `response` (Responses API with reasoning controls).        |
+| OPENAI_REASONING_EFFORT | string |       medium         |    No    |  Only for `response` API type. Controls reasoning: `minimal/low` for fast tasks, `medium` balanced, `high` for complex planning. |
+| OPENAI_TEXT_VERBOSITY | string |       medium         |    No    |          Only for `response` API type. Controls output length: `low` compact, `medium` standard, `high` verbose.          |
+| AZURE_API_VERSION     | string |         None         |    No    |                                                                             AZURE_API_VERSION                                                                              |
+| OPENAI_TEMPERATURE    | number |         0.7          |    No    |       Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative        |
+| GEMINI_API_KEY        | string |         None         |   Yes    |      Required when `AI Provider` is set to `Gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)      |
+| GEMINI_MODEL          | string | gemini-2.0-flash-001 |   Yes    |                        Gemini MODEL. Currently, model selection is limited to configuration.                         |
+| GEMINI_TEMPERATURE    | number |         0.7          |    No    |    Controls randomness in the output. Range: 0-2 for Gemini. Lower values: more focused, Higher values: more creative    |
+| AI_COMMIT_LANGUAGE     | string |          en          |   Yes    |                                                                               Supports 19 languages                                                                               |
+| SYSTEM_PROMPT         | string |         None         |    No    |                                                                               Custom system prompt                                                                               |
+
+### API Type Guide
+
+**Chat Completions API (`completion`)** - Default
+- Use for: GPT-4, GPT-4o, GPT-4o-mini, and other standard models
+- Best for: Fast, simple commit message generation
+
+**Responses API (`response`)** - Recommended for GPT-5 and o-series
+- Use for: GPT-5, o1, o3 series reasoning models
+- Features: Better reasoning control, structured outputs, multi-turn state
+- Settings:
+  - **Reasoning Effort**: `low` for fast/simple tasks, `medium` for balanced, `high` for complex planning
+  - **Text Verbosity**: `low` for compact output, `medium` for standard, `high` for detailed
 
 ## ⌨️ Local Development
 

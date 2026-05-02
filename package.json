@@ -154,20 +154,20 @@
         "ai-commit.OPENAI_API_TYPE": {
           "type": "string",
           "default": "completion",
-          "description": "OpenAI API type. 'completion' uses Chat Completions API (default, for GPT-4, GPT-4o). 'response' uses Responses API (recommended for GPT-5 and o-series reasoning models).",
+          "description": "Choose OpenAI API type. 'completion' uses Chat Completions (GPT-4, GPT-4o). 'response' uses Responses API (GPT-5, o-series models with reasoning, tools, structured outputs).",
           "enum": [
             "completion",
             "response"
           ],
           "enumDescriptions": [
-            "Chat Completions API - Default endpoint for GPT-4, GPT-4o, GPT-4o-mini",
-            "Responses API - Recommended for GPT-5 and o-series reasoning models"
+            "Chat Completions API - Standard endpoint for GPT-4, GPT-4o, GPT-4o-mini",
+            "Responses API - New endpoint with reasoning controls for GPT-5, o1, o3 series"
           ]
         },
         "ai-commit.OPENAI_REASONING_EFFORT": {
           "type": "string",
           "default": "medium",
-          "description": "Reasoning effort for Responses API (GPT-5, o-series models). Controls how much reasoning the model performs.",
+          "description": "Controls how much reasoning the model performs before responding. Use 'low' for fast tasks (classification), 'medium' for balanced work, 'high' for complex planning or multi-step analysis.",
           "enum": [
             "minimal",
             "low",
@@ -175,25 +175,25 @@
             "high"
           ],
           "enumDescriptions": [
-            "Minimal - Fastest, for simple deterministic tasks",
-            "Low - Quick responses, for classification/extraction",
-            "Medium - Balanced quality, latency, and cost (default)",
-            "High - Best accuracy for complex planning/agents"
+            "Minimal - Fastest, for simple classification/formatting tasks",
+            "Low - Quick responses for extraction, short rewrites",
+            "Medium - Balanced quality, latency, and cost (recommended for most tasks)",
+            "High - Best accuracy for complex planning, agents, multi-step workflows"
           ]
         },
         "ai-commit.OPENAI_TEXT_VERBOSITY": {
           "type": "string",
           "default": "medium",
-          "description": "Text verbosity for Responses API (GPT-5, o-series models). Controls length and detail of the final answer.",
+          "description": "Controls output length/detail. 'low' for compact UI responses, 'medium' for standard output, 'high' for detailed documentation or audit reports.",
           "enum": [
             "low",
             "medium",
             "high"
           ],
           "enumDescriptions": [
-            "Low - Compact responses for UI/chat widgets",
-            "Medium - Normal assistant output (default)",
-            "High - Detailed for audits/documentation"
+            "Low - Compact, concise output for chat widgets or mobile",
+            "Medium - Standard assistant output with reasonable detail (default)",
+            "High - Verbose output for documentation, reports, detailed analysis"
           ]
         }
       },
