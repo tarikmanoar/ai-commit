@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { ConfigKeys, ConfigurationManager } from './config';
+import { Logger } from './logger';
 
 /**
  * Creates and returns a Gemini API configuration object.
@@ -58,7 +59,7 @@ export async function GeminiAPI(messages: any[]) {
     return text;
 
   } catch (error) {
-    console.error('Gemini API call failed:', error);
+    Logger.error('Gemini API call failed:', error);
     throw error;
   }
 }

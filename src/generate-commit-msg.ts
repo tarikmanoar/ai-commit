@@ -8,6 +8,7 @@ import { getMainCommitPrompt } from './prompts';
 import { ProgressHandler } from './utils';
 import { GeminiAPI } from './gemini-utils';
 import { ClaudeAPI } from './claude-utils';
+import { Logger } from './logger';
 
 /**
  * Generates a chat completion prompt for the commit message based on the provided diff.
@@ -78,6 +79,7 @@ export async function generateCommitMsg(arg) {
         ConfigKeys.AI_PROVIDER,
         'openai'
       );
+      Logger.info(`Using AI provider: ${aiProvider}`);
 
       progress.report({ message: 'Getting staged changes...' });
       const { diff, error } = await getDiffStaged(repo);
@@ -139,11 +141,13 @@ export async function generateCommitMsg(arg) {
         if (commitMessage) {
           // 清理 think 标签内容
           commitMessage = commitMessage.replace(/<think>.*?<\/think>/gs, '').trim();
+          Logger.info('Commit message generated successfully');
           scmInputBox.value = commitMessage;
         } else {
           throw new Error('Failed to generate commit message');
         }
       } catch (err: any) {
+        Logger.error(`${aiProvider} API call failed:`, err);
         let errorMessage =
           (err instanceof Error && err.message) ||
           (typeof err === 'string' ? err : 'An unexpected error occurred');
@@ -172,6 +176,7 @@ export async function generateCommitMsg(arg) {
         throw new Error(errorMessage);
       }
     } catch (error) {
+      Logger.error('Failed to generate commit message:', error);
       throw error;
     }
   });

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CommandManager } from './commands';
 import { ConfigurationManager } from './config';
+import { Logger } from './logger';
 
 /**
  * Activates the extension and registers commands.
@@ -9,6 +10,9 @@ import { ConfigurationManager } from './config';
  */
 export async function activate(context: vscode.ExtensionContext) {
   try {
+    Logger.initialize();
+    Logger.info('Activating AI Commit extension...');
+
     const configManager = ConfigurationManager.getInstance(context);
 
     const commandManager = new CommandManager(context);
@@ -18,12 +22,13 @@ export async function activate(context: vscode.ExtensionContext) {
       dispose: () => {
         configManager.dispose();
         commandManager.dispose();
+        Logger.dispose();
       }
     });
 
     // Check API key based on configured AI provider
     const aiProvider = configManager.getConfig<string>('AI_PROVIDER', 'openai');
-    
+
     if (aiProvider === 'gemini') {
       const geminiApiKey = configManager.getConfig<string>('GEMINI_API_KEY');
       if (!geminiApiKey) {
@@ -59,7 +64,7 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     }
   } catch (error) {
-    console.error('Failed to activate extension:', error);
+    Logger.error('Failed to activate extension:', error);
     throw error;
   }
 }
