@@ -7,6 +7,7 @@ import { ChatGPTAPI } from './openai-utils';
 import { getMainCommitPrompt } from './prompts';
 import { ProgressHandler } from './utils';
 import { GeminiAPI } from './gemini-utils';
+import { ClaudeAPI } from './claude-utils';
 
 /**
  * Generates a chat completion prompt for the commit message based on the provided diff.
@@ -73,7 +74,10 @@ export async function generateCommitMsg(arg) {
       const configManager = ConfigurationManager.getInstance();
       const repo = await getRepo(arg);
 
-      const aiProvider = configManager.getConfig<string>(ConfigKeys.AI_PROVIDER, 'openai');
+      const aiProvider = configManager.getConfig<string>(
+        ConfigKeys.AI_PROVIDER,
+        'openai'
+      );
 
       progress.report({ message: 'Getting staged changes...' });
       const { diff, error } = await getDiffStaged(repo);
@@ -112,13 +116,20 @@ export async function generateCommitMsg(arg) {
         let commitMessage: string | undefined;
 
         if (aiProvider === 'gemini') {
-          const geminiApiKey = configManager.getConfig<string>(ConfigKeys.GEMINI_API_KEY);
+          const geminiApiKey = configManager.getConfig<string>(
+            ConfigKeys.GEMINI_API_KEY
+          );
           if (!geminiApiKey) {
             throw new Error('Gemini API Key not configured');
           }
           commitMessage = await GeminiAPI(messages);
+        } else if (aiProvider === 'claude') {
+          // Claude uses CLI, no API key needed (already authenticated via 'claude setup-token')
+          commitMessage = await ClaudeAPI(messages);
         } else {
-          const openaiApiKey = configManager.getConfig<string>(ConfigKeys.OPENAI_API_KEY);
+          const openaiApiKey = configManager.getConfig<string>(
+            ConfigKeys.OPENAI_API_KEY
+          );
           if (!openaiApiKey) {
             throw new Error('OpenAI API Key not configured');
           }
@@ -153,8 +164,9 @@ export async function generateCommitMsg(arg) {
               break;
           }
         } else if (aiProvider === 'gemini') {
-          const message = err instanceof Error ? err.message : String(err);
-          errorMessage = `Gemini API error: ${message}`;
+          errorMessage = `Gemini API error: ${err.message}`;
+        } else if (aiProvider === 'claude') {
+          errorMessage = `Claude API error: ${err.message}`;
         }
 
         throw new Error(errorMessage);
