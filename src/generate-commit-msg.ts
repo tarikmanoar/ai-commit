@@ -126,7 +126,12 @@ export async function generateCommitMsg(arg) {
           }
           commitMessage = await GeminiAPI(messages);
         } else if (aiProvider === 'claude') {
-          // Claude uses CLI, no API key needed (already authenticated via 'claude setup-token')
+          const claudeApiKey = configManager.getConfig<string>(
+            ConfigKeys.CLAUDE_API_KEY
+          );
+          if (!claudeApiKey) {
+            throw new Error('Claude API Key not configured');
+          }
           commitMessage = await ClaudeAPI(messages);
         } else {
           const openaiApiKey = configManager.getConfig<string>(
@@ -176,7 +181,6 @@ export async function generateCommitMsg(arg) {
         throw new Error(errorMessage);
       }
     } catch (error) {
-      Logger.error('Failed to generate commit message:', error);
       throw error;
     }
   });

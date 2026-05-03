@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-class Logger {
+export class Logger {
   private static outputChannel: vscode.OutputChannel;
 
   static initialize() {
@@ -20,11 +20,16 @@ class Logger {
   }
 
   private static log(level: string, message: string, ...args: any[]) {
+    if (!this.outputChannel) {
+      return;
+    }
     const timestamp = new Date().toISOString();
     const formattedMessage = `[${timestamp}] [${level}] ${message}`;
 
     if (args.length > 0) {
-      this.outputChannel.appendLine(`${formattedMessage} ${args.map(a => this.formatArg(a)).join(' ')}`);
+      this.outputChannel.appendLine(
+        `${formattedMessage} ${args.map((a) => this.formatArg(a)).join(' ')}`
+      );
     } else {
       this.outputChannel.appendLine(formattedMessage);
     }
@@ -48,5 +53,3 @@ class Logger {
     this.outputChannel?.dispose();
   }
 }
-
-export { Logger };
