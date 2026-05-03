@@ -125,8 +125,9 @@ export async function generateCommitMsg(arg) {
           commitMessage = await ChatGPTAPI(messages as ChatCompletionMessageParam[]);
         }
 
-
         if (commitMessage) {
+          // 清理 think 标签内容
+          commitMessage = commitMessage.replace(/<think>.*?<\/think>/gs, '').trim();
           scmInputBox.value = commitMessage;
         } else {
           throw new Error('Failed to generate commit message');
