@@ -6,7 +6,7 @@
 
 <h1>AI Commit</h1>
 
-Use OpenAI / Azure OpenAI / DeepSeek / Gemini API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.
+Use OpenAI / Azure OpenAI / DeepSeek / Grok / Gemini / Claude (Anthropic) API to review Git changes, generate conventional commit messages that meet the conventions, simplify the commit process, and keep the commit conventions consistent.
 
 **English** · [简体中文](./README.zh_CN.md) · [Report Bug][github-issues-link] · [Request Feature][github-issues-link]
 
@@ -27,7 +27,8 @@ Use OpenAI / Azure OpenAI / DeepSeek / Gemini API to review Git changes, generat
 
 ## ✨ Features
 
-- 🤯 Support generating commit messages based on git diffs using ChatGPT / Azure API / DeepSeek / Gemini API.
+- 🤯 Support generating commit messages based on git diffs using OpenAI / Azure OpenAI / DeepSeek / Grok / Gemini / Claude (Anthropic) API.
+- 🧠 Support OpenAI Responses API with configurable reasoning effort and output verbosity.
 - 🗺️ Support multi-language commit messages.
 - 😜 Support adding Gitmoji.
 - 🛠️ Support custom system prompt.
@@ -59,19 +60,25 @@ Use OpenAI / Azure OpenAI / DeepSeek / Gemini API to review Git changes, generat
 
 In the VSCode settings, locate the "ai-commit" configuration options and configure them as needed:
 
-| Configuration      |  Type  |       Default        | Required |                                                       Notes                                                        |
-| :----------------- | :----: | :------------------: | :------: | :----------------------------------------------------------------------------------------------------------------: |
-| AI_PROVIDER        | string |        openai        |   Yes    |                                     Select AI Provider: `openai` or `gemini`.                                      |
-| OPENAI_API_KEY     | string |         None         |   Yes    |    Required when `AI Provider` is set to `OpenAI`. [OpenAI token](https://platform.openai.com/account/api-keys)    |
-| OPENAI_BASE_URL    | string |         None         |    No    |                If using Azure, use: https://{resource}.openai.azure.com/openai/deployments/{model}                 |
-| OPENAI_MODEL       | string |        gpt-4o        |   Yes    |      OpenAI MODEL, you can select a model from the list by running the `Show Available OpenAI Models` command      |
-| AZURE_API_VERSION  | string |         None         |    No    |                                                 AZURE_API_VERSION                                                  |
-| OPENAI_TEMPERATURE | number |         0.7          |    No    |      Controls randomness in the output. Range: 0-2. Lower values: more focused, Higher values: more creative       |
-| GEMINI_API_KEY     | string |         None         |   Yes    |     Required when `AI Provider` is set to `Gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)     |
-| GEMINI_MODEL       | string | gemini-2.0-flash-001 |   Yes    |                       Gemini MODEL. Currently, model selection is limited to configuration.                        |
-| GEMINI_TEMPERATURE | number |         0.7          |    No    | Controls randomness in the output. Range: 0-2 for Gemini. Lower values: more focused, Higher values: more creative |
-| AI_COMMIT_LANGUAGE | string |          en          |   Yes    |                                               Supports 19 languages                                                |
-| SYSTEM_PROMPT      | string |         None         |    No    |                                                Custom system prompt                                                |
+| Configuration           |  Type  |          Default           | Required |                                                               Notes                                                                |
+| :---------------------- | :----: | :------------------------: | :------: | :--------------------------------------------------------------------------------------------------------------------------------: |
+| AI_PROVIDER             | string |           openai           |   Yes    |                                        AI Provider to use: `openai`, `gemini`, or `claude`                                         |
+| OPENAI_API_KEY          | string |            None            |   Yes    |               Required when `AI_PROVIDER` is `openai`. [OpenAI token](https://platform.openai.com/account/api-keys)                |
+| OPENAI_BASE_URL         | string |            None            |    No    |                       If using Azure, use: `https://{resource}.openai.azure.com/openai/deployments/{model}`                        |
+| OPENAI_MODEL            | string |           gpt-4o           |   Yes    |                     OpenAI model. Run the `Show Available OpenAI Models` command to pick from available models                     |
+| AZURE_API_VERSION       | string |            None            |    No    |                                                      Azure API version string                                                      |
+| OPENAI_TEMPERATURE      | number |            0.7             |    No    |               Controls randomness. Range: 0–2. Lower = more focused, Higher = more creative. (Chat Completions only)               |
+| OPENAI_API_TYPE         | string |         completion         |    No    |                             Choose API: `completion` (Chat Completions) or `response` (Responses API)                              |
+| OPENAI_REASONING_EFFORT | string |           medium           |    No    |     Reasoning effort for Responses API: `minimal`, `low`, `medium`, `high`. Only applies when `OPENAI_API_TYPE` is `response`      |
+| OPENAI_TEXT_VERBOSITY   | string |           medium           |    No    |             Output verbosity for Responses API: `low` (~1000 tokens), `medium` (~4000 tokens), `high` (~16000 tokens)              |
+| GEMINI_API_KEY          | string |            None            |   Yes    |                Required when `AI_PROVIDER` is `gemini`. [Gemini API key](https://makersuite.google.com/app/apikey)                 |
+| GEMINI_MODEL            | string |    gemini-2.0-flash-001    |   Yes    |                                                        Gemini model to use                                                         |
+| GEMINI_TEMPERATURE      | number |            0.7             |    No    |                           Controls randomness. Range: 0–2. Lower = more focused, Higher = more creative                            |
+| CLAUDE_API_KEY          | string |            None            |    No    | Anthropic API key. Leave empty to use Claude CLI (authenticated via `claude setup-token`). Required when `AI_PROVIDER` is `claude` |
+| CLAUDE_MODEL            | string | claude-sonnet-4-5-20250929 |    No    |                                                        Claude model to use                                                         |
+| CLAUDE_TEMPERATURE      | number |            0.7             |    No    |                                                  Controls randomness. Range: 0–1                                                   |
+| AI_COMMIT_LANGUAGE      | string |          English           |   Yes    |                                                       Supports 19 languages                                                        |
+| SYSTEM_PROMPT           | string |            None            |    No    |                                                        Custom system prompt                                                        |
 
 ## ⌨️ Local Development
 

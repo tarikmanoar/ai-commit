@@ -6,7 +6,7 @@
 
 <h1>AI Commit</h1>
 
-使用 OpenAI / Azure OpenAI / DeepSeek / Gemini API 审查 Git 暂存区修改，生成符合 Conventional Commit 规范的提交消息，简化提交流程，保持提交规范一致。
+使用 OpenAI / Azure OpenAI / DeepSeek / Grok / Gemini / Claude (Anthropic) API 审查 Git 暂存区修改，生成符合 Conventional Commit 规范的提交消息，简化提交流程，保持提交规范一致。
 
 [English](./README.md) · **简体中文** · [报告问题][github-issues-link] · [请求功能][github-issues-link]
 
@@ -27,7 +27,8 @@
 
 ## ✨ 特性
 
-- 🤯 支持使用 OpenAI / Azure OpenAI / DeepSeek / Gemini API 根据 git diffs 自动生成提交信息
+- 🤯 支持使用 OpenAI / Azure OpenAI / DeepSeek / Grok / Gemini / Claude (Anthropic) API 根据 git diffs 自动生成提交信息
+- 🧠 支持 OpenAI Responses API，可配置推理强度（reasoning effort）和输出详细程度
 - 🗺️ 支持多语言提交信息
 - 😜 支持添加 Gitmoji
 - 🛠️ 支持自定义系统提示词
@@ -59,19 +60,25 @@
 
 在 `VSCode` 设置中，找到 "ai-commit" 配置项，并根据需要进行配置
 
-| 配置               |  类型  |         默认         | 必要 |                                              备注                                               |
-| :----------------- | :----: | :------------------: | :--: | :---------------------------------------------------------------------------------------------: |
-| AI_PROVIDER        | string |        openai        | Yes  |                            Select AI Provider: `openai` or `gemini`.                            |
-| OPENAI_API_KEY     | string |         None         |  是  |                   [OpenAI 令牌](https://platform.openai.com/account/api-keys)                   |
-| OPENAI_BASE_URL    | string |         None         |  否  |       如果是 Azure，使用：https://{resource}.openai.azure.com/openai/deployments/{model}        |
-| OPENAI_MODEL       | string |        gpt-4o        |  是  |     OpenAI MODEL, 你可以通过运行 `Show Available OpenAI Models` 命令从列表中选择一个模型。      |
-| AZURE_API_VERSION  | string |         None         |  否  |                                        AZURE_API_VERSION                                        |
-| OPENAI_TEMPERATURE | number |         0.7          |  否  |              控制输出的随机性。范围：0-2。较低的值：更加集中，较高的值：更有创造性              |
-| GEMINI_API_KEY     | string |         None         | Yes  | 将`AI Provider`设置为`Gemini`时需要。[Gemini API key](https://makersuite.google.com/app/apikey) |
-| GEMINI_MODEL       | string | gemini-2.0-flash-001 | Yes  |                               模型选择仅限于配 Gemini 模型。置。                                |
-| GEMINI_TEMPERATURE | number |         0.7          |  No  |          `Gemini` 控制输出的随机性。范围：0-2。较低的值：更加集中，较高的值：更有创造           |
-| AI_COMMIT_LANGUAGE | string |          en          |  是  |                                         支持 19 种语言                                          |
-| SYSTEM_PROMPT      | string |         None         |  否  |                                        自定义系统提示词                                         |
+| 配置                    |  类型  |            默认            | 必要 |                                                      备注                                                       |
+| :---------------------- | :----: | :------------------------: | :--: | :-------------------------------------------------------------------------------------------------------------: |
+| AI_PROVIDER             | string |           openai           | Yes  |                                 选择 AI 提供商：`openai`、`gemini` 或 `claude`                                  |
+| OPENAI_API_KEY          | string |            None            |  是  |                           [OpenAI 令牌](https://platform.openai.com/account/api-keys)                           |
+| OPENAI_BASE_URL         | string |            None            |  否  |             如果使用 Azure，填入：`https://{resource}.openai.azure.com/openai/deployments/{model}`              |
+| OPENAI_MODEL            | string |           gpt-4o           |  是  |                     OpenAI 模型，可通过运行 `Show Available OpenAI Models` 命令从列表中选择                     |
+| AZURE_API_VERSION       | string |            None            |  否  |                                                Azure API 版本号                                                 |
+| OPENAI_TEMPERATURE      | number |            0.7             |  否  |                控制输出随机性。范围：0–2。较低：更集中，较高：更有创造性（仅 Chat Completions）                 |
+| OPENAI_API_TYPE         | string |         completion         |  否  |                  选择 API 类型：`completion`（Chat Completions）或 `response`（Responses API）                  |
+| OPENAI_REASONING_EFFORT | string |           medium           |  否  |     Responses API 推理强度：`minimal`、`low`、`medium`、`high`。仅在 `OPENAI_API_TYPE` 为 `response` 时生效     |
+| OPENAI_TEXT_VERBOSITY   | string |           medium           |  否  |      Responses API 输出详细程度：`low`（~1000 tokens）、`medium`（~4000 tokens）、`high`（~16000 tokens）       |
+| GEMINI_API_KEY          | string |            None            |  是  |          `AI_PROVIDER` 为 `gemini` 时必填。[Gemini API key](https://makersuite.google.com/app/apikey)           |
+| GEMINI_MODEL            | string |    gemini-2.0-flash-001    |  是  |                                                Gemini 使用的模型                                                |
+| GEMINI_TEMPERATURE      | number |            0.7             |  否  |                            控制输出随机性。范围：0–2。较低：更集中，较高：更有创造性                            |
+| CLAUDE_API_KEY          | string |            None            |  否  | Anthropic API 密钥。留空可使用 Claude CLI（通过 `claude setup-token` 认证）。`AI_PROVIDER` 为 `claude` 时需配置 |
+| CLAUDE_MODEL            | string | claude-sonnet-4-5-20250929 |  否  |                                                Claude 使用的模型                                                |
+| CLAUDE_TEMPERATURE      | number |            0.7             |  否  |                                            控制输出随机性。范围：0–1                                            |
+| AI_COMMIT_LANGUAGE      | string |          English           |  是  |                                                 支持 19 种语言                                                  |
+| SYSTEM_PROMPT           | string |            None            |  否  |                                                自定义系统提示词                                                 |
 
 ## ⌨️ 本地开发
 
