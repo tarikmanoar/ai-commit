@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
+import { ReasoningEffort } from 'openai/resources/shared';
 import { ConfigKeys, ConfigurationManager } from './config';
 
 /**
@@ -55,7 +56,10 @@ export async function ChatGPTAPI(messages: ChatCompletionMessageParam[]) {
   const openai = createOpenAIApi();
   const configManager = ConfigurationManager.getInstance();
   const model = configManager.getConfig<string>(ConfigKeys.OPENAI_MODEL);
-  const temperature = configManager.getConfig<number>(ConfigKeys.OPENAI_TEMPERATURE, 0.7);
+  const temperature = configManager.getConfig<number>(
+    ConfigKeys.OPENAI_TEMPERATURE,
+    0.7
+  );
 
   const completion = await openai.chat.completions.create({
     model,
@@ -64,4 +68,56 @@ export async function ChatGPTAPI(messages: ChatCompletionMessageParam[]) {
   });
 
   return completion.choices[0]!.message?.content;
+}
+
+/**
+ * Sends a request to the OpenAI Responses API.
+ * Supports reasoning effort and output verbosity configuration.
+ * @param {Array<Object>} messages - The messages to send (same format as Chat Completions).
+ * @returns {Promise<string>} - A promise that resolves to the API response text.
+ */
+export async function ResponsesAPI(messages: ChatCompletionMessageParam[]) {
+  const openai = createOpenAIApi();
+  const configManager = ConfigurationManager.getInstance();
+  const model = configManager.getConfig<string>(ConfigKeys.OPENAI_MODEL);
+  const reasoningEffort = configManager.getConfig<string>(
+    ConfigKeys.OPENAI_REASONING_EFFORT,
+    'medium'
+  );
+  const textVerbosity = configManager.getConfig<string>(
+    ConfigKeys.OPENAI_TEXT_VERBOSITY,
+    'medium'
+  );
+
+  const verbosityTokenMap: Record<string, number> = {
+    low: 1000,
+    medium: 4000,
+    high: 16000
+  };
+  const maxOutputTokens = verbosityTokenMap[textVerbosity] ?? 4000;
+
+  // Extract system message as instructions; pass the rest as input
+  const systemMsg = messages.find((m) => m.role === 'system');
+  const instructions = systemMsg
+    ? typeof systemMsg.content === 'string'
+      ? systemMsg.content
+      : undefined
+    : undefined;
+
+  const inputMessages = messages
+    .filter((m) => m.role !== 'system')
+    .map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+    }));
+
+  const response = await openai.responses.create({
+    model,
+    ...(instructions ? { instructions } : {}),
+    input: inputMessages,
+    reasoning: { effort: reasoningEffort as ReasoningEffort },
+    max_output_tokens: maxOutputTokens
+  });
+
+  return response.output_text;
 }

@@ -22,7 +22,7 @@ export enum ConfigKeys {
   AI_COMMIT_LANGUAGE = 'AI_COMMIT_LANGUAGE',
   SYSTEM_PROMPT = 'AI_COMMIT_SYSTEM_PROMPT',
   OPENAI_TEMPERATURE = 'OPENAI_TEMPERATURE',
-  
+
   GEMINI_API_KEY = 'GEMINI_API_KEY',
   GEMINI_MODEL = 'GEMINI_MODEL',
   GEMINI_TEMPERATURE = 'GEMINI_TEMPERATURE',
@@ -31,6 +31,10 @@ export enum ConfigKeys {
   CLAUDE_API_KEY = 'CLAUDE_API_KEY',
   CLAUDE_MODEL = 'CLAUDE_MODEL',
   CLAUDE_TEMPERATURE = 'CLAUDE_TEMPERATURE',
+
+  OPENAI_API_TYPE = 'OPENAI_API_TYPE',
+  OPENAI_REASONING_EFFORT = 'OPENAI_REASONING_EFFORT',
+  OPENAI_TEXT_VERBOSITY = 'OPENAI_TEXT_VERBOSITY'
 }
 
 /**
@@ -48,8 +52,10 @@ export class ConfigurationManager {
       if (event.affectsConfiguration('ai-commit')) {
         this.configCache.clear();
 
-        if (event.affectsConfiguration('ai-commit.OPENAI_BASE_URL') ||
-          event.affectsConfiguration('ai-commit.OPENAI_API_KEY')) {
+        if (
+          event.affectsConfiguration('ai-commit.OPENAI_BASE_URL') ||
+          event.affectsConfiguration('ai-commit.OPENAI_API_KEY')
+        ) {
           this.updateOpenAIModelList();
         }
       }
@@ -84,14 +90,17 @@ export class ConfigurationManager {
       const models = await openai.models.list();
 
       // Save available models to extension state
-      await this.context.globalState.update('availableOpenAIModels', models.data.map(model => model.id));
+      await this.context.globalState.update(
+        'availableOpenAIModels',
+        models.data.map((model) => model.id)
+      );
 
       // Get the current selected model
       const config = vscode.workspace.getConfiguration('ai-commit');
       const currentModel = config.get<string>('OPENAI_MODEL');
 
       // If the current selected model is not in the available list, set it to the default value
-      const availableModels = models.data.map(model => model.id);
+      const availableModels = models.data.map((model) => model.id);
       if (!availableModels.includes(currentModel)) {
         await config.update('OPENAI_MODEL', 'gpt-4', vscode.ConfigurationTarget.Global);
       }
@@ -115,7 +124,7 @@ export class ConfigurationManager {
    * @deprecated
    * This function is deprecated because Gemini API does not currently support listing models via API.
    * We have to wait for this feature to be updated to the gemini library at some point, or find another way.
-   * 
+   *
    * Updates the list of available Gemini models.
    */
   /*
@@ -146,7 +155,7 @@ export class ConfigurationManager {
   /**
    * @deprecated
    * This function is deprecated because Gemini API does not currently support listing models via API.
-   * 
+   *
    * Retrieves the list of available Gemini models.
    * @returns {Promise<string[]>} The list of available Gemini models.
    */

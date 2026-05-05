@@ -3,7 +3,7 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 import * as vscode from 'vscode';
 import { ConfigKeys, ConfigurationManager } from './config';
 import { getDiffStaged } from './git-utils';
-import { ChatGPTAPI } from './openai-utils';
+import { ChatGPTAPI, ResponsesAPI } from './openai-utils';
 import { getMainCommitPrompt } from './prompts';
 import { ProgressHandler } from './utils';
 import { GeminiAPI } from './gemini-utils';
@@ -140,7 +140,17 @@ export async function generateCommitMsg(arg) {
           if (!openaiApiKey) {
             throw new Error('OpenAI API Key not configured');
           }
-          commitMessage = await ChatGPTAPI(messages as ChatCompletionMessageParam[]);
+          const apiType = configManager.getConfig<string>(
+            ConfigKeys.OPENAI_API_TYPE,
+            'completion'
+          );
+          if (apiType === 'response') {
+            commitMessage = await ResponsesAPI(
+              messages as ChatCompletionMessageParam[]
+            );
+          } else {
+            commitMessage = await ChatGPTAPI(messages as ChatCompletionMessageParam[]);
+          }
         }
 
         if (commitMessage) {
