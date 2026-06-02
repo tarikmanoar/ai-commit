@@ -1,16 +1,26 @@
 import { ConfigKeys, ConfigurationManager } from './config';
 
+const getLanguageInstruction = (language: string): string => {
+  if (language === 'Bangla (Bangladesh)') {
+    return 'Bangla (Bangladesh) with Bangladeshi tone and accent';
+  }
+  return language;
+};
+
 /**
  * Initializes the main prompt for generating commit messages.
  *
  * @param {string} language - The language to be used in the prompt.
  * @returns {Object} - The main prompt object containing role and content.
  */
-const INIT_MAIN_PROMPT = (language: string) => ({
-  role: 'system',
-  content:
-    ConfigurationManager.getInstance().getConfig<string>(ConfigKeys.SYSTEM_PROMPT) ||
-    `# Git Commit Message Guide
+const INIT_MAIN_PROMPT = (language: string) => {
+  const languageInstruction = getLanguageInstruction(language);
+
+  return {
+    role: 'system',
+    content:
+      ConfigurationManager.getInstance().getConfig<string>(ConfigKeys.SYSTEM_PROMPT) ||
+      `# Git Commit Message Guide
 
 ## Role and Purpose
 
@@ -61,20 +71,20 @@ You will act as a git commit message generator. When receiving a git diff, you w
 - No capitalization
 - No period at end
 - Max 50 characters
-- Must be in ${language}
+- Must be in ${languageInstruction}
 
 ### Body
 
 - Bullet points with "-"
 - Max 72 chars per line
 - Explain what and why
-- Must be in ${language}
+- Must be in ${languageInstruction}
 - Use【】for different types
 
 ## Critical Requirements
 
 1. Output ONLY the commit message
-2. Write ONLY in ${language}
+2. Write ONLY in ${languageInstruction}
 3. NO additional text or explanations
 4. NO questions or comments
 5. NO formatting instructions or metadata
@@ -104,8 +114,9 @@ OUTPUT:
 - rename port variable to uppercase (PORT) to follow constant naming convention
 - add environment variable port support for flexible deployment
 
-Remember: All output MUST be in ${language} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
-});
+Remember: All output MUST be in ${languageInstruction} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
+  };
+};
 
 /**
  * Retrieves the main commit prompt.
