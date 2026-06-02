@@ -1,10 +1,11 @@
 import { ConfigKeys, ConfigurationManager } from './config';
 
+const LANGUAGE_INSTRUCTIONS: Record<string, string> = {
+  'Bangla (Bangladesh)': 'Bangla (Bangladesh) with Bangladeshi tone and accent'
+};
+
 const getLanguageInstruction = (language: string): string => {
-  if (language === 'Bangla (Bangladesh)') {
-    return 'Bangla (Bangladesh) with Bangladeshi tone and accent';
-  }
-  return language;
+  return LANGUAGE_INSTRUCTIONS[language] ?? language;
 };
 
 /**
