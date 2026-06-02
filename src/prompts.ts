@@ -1,16 +1,11 @@
 import { ConfigKeys, ConfigurationManager } from './config';
 
-const LANGUAGE_INSTRUCTIONS: Record<string, string> = {
-  'Bangla (Bangladesh)': 'standard formal Bangla (প্রমিত বাংলা) as used in Bangladesh'
-};
-
-const getLanguageInstruction = (language: string): string => {
-  return LANGUAGE_INSTRUCTIONS[language] ?? language;
-};
-
 /**
  * Optional language-specific style notes appended to the prompt. These steer
- * the model toward natural, correct usage for a given locale.
+ * the model toward natural, correct usage for a given locale. The language
+ * name itself is still used in the prompt's "Must be in <language>" lines;
+ * these notes only add extra guidance, so they read grammatically regardless
+ * of how descriptive they are.
  */
 const LANGUAGE_STYLE_NOTES: Record<string, string> = {
   'Bangla (Bangladesh)': `## Bangla (Bangladesh) Language Rules
@@ -31,8 +26,7 @@ const LANGUAGE_STYLE_NOTES: Record<string, string> = {
 };
 
 const getLanguageStyleNote = (language: string): string => {
-  const note = LANGUAGE_STYLE_NOTES[language];
-  return note ? `\n${note}\n` : '';
+  return LANGUAGE_STYLE_NOTES[language] ?? '';
 };
 
 /**
@@ -42,8 +36,10 @@ const getLanguageStyleNote = (language: string): string => {
  * @returns {Object} - The main prompt object containing role and content.
  */
 const INIT_MAIN_PROMPT = (language: string) => {
-  const languageInstruction = getLanguageInstruction(language);
-  const languageStyleNote = getLanguageStyleNote(language);
+  const styleNote = getLanguageStyleNote(language);
+  // Owns the spacing around the optional note so the surrounding template
+  // keeps consistent single blank lines whether or not a note is present.
+  const styleSection = styleNote ? `\n${styleNote}\n` : '';
 
   return {
     role: 'system',
@@ -100,20 +96,20 @@ You will act as a git commit message generator. When receiving a git diff, you w
 - No capitalization
 - No period at end
 - Max 50 characters
-- Must be in ${languageInstruction}
+- Must be in ${language}
 
 ### Body
 
 - Bullet points with "-"
 - Max 72 chars per line
 - Explain what and why
-- Must be in ${languageInstruction}
+- Must be in ${language}
 - Use【】for different types
-${languageStyleNote}
+${styleSection}
 ## Critical Requirements
 
 1. Output ONLY the commit message
-2. Write ONLY in ${languageInstruction}
+2. Write ONLY in ${language}
 3. NO additional text or explanations
 4. NO questions or comments
 5. NO formatting instructions or metadata
@@ -143,7 +139,7 @@ OUTPUT:
 - rename port variable to uppercase (PORT) to follow constant naming convention
 - add environment variable port support for flexible deployment
 
-Remember: All output MUST be in ${languageInstruction} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
+Remember: All output MUST be in ${language} language. You are to act as a pure commit message generator. Your response should contain NOTHING but the commit message itself.`
   };
 };
 
