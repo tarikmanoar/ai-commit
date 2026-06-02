@@ -1,11 +1,38 @@
 import { ConfigKeys, ConfigurationManager } from './config';
 
 const LANGUAGE_INSTRUCTIONS: Record<string, string> = {
-  'Bangla (Bangladesh)': 'Bangla (Bangladesh) with Bangladeshi tone and accent'
+  'Bangla (Bangladesh)': 'standard formal Bangla (প্রমিত বাংলা) as used in Bangladesh'
 };
 
 const getLanguageInstruction = (language: string): string => {
   return LANGUAGE_INSTRUCTIONS[language] ?? language;
+};
+
+/**
+ * Optional language-specific style notes appended to the prompt. These steer
+ * the model toward natural, correct usage for a given locale.
+ */
+const LANGUAGE_STYLE_NOTES: Record<string, string> = {
+  'Bangla (Bangladesh)': `## Bangla (Bangladesh) Language Rules
+
+- Write in Standard Formal Bangla (প্রমিত বাংলা), exactly as used in professional writing in Bangladesh.
+- Use correct standard spelling. Do NOT use colloquial, spoken, or regional dialect spellings.
+- Required word forms (use the left form, never the right):
+  - "থেকে" (NOT "থিকা")
+  - "করা হয়েছে" / "যোগ করা হয়েছে" / "সরানো হয়েছে" (NOT "হইল" / "করা হইল")
+  - "জন্য" (NOT "লাইগা" / "জইন্য")
+  - "পুরনো" / "পুরাতন" (NOT "পুরান")
+  - "এখান" / "এখানে" (NOT "এইখান" / "এইখানে")
+  - "হলো" (NOT "হইল")
+- Prefer the perfect form "… করা হয়েছে" over the colloquial "… করা হইল".
+- Use vocabulary common in Bangladesh — avoid West Bengal (India) specific words.
+- Keep the tone neutral, professional, and concise, like a Bangladeshi software engineer writing a commit message.
+- Keep technical terms (variable names, API names, file names, type/scope keywords) in English.`
+};
+
+const getLanguageStyleNote = (language: string): string => {
+  const note = LANGUAGE_STYLE_NOTES[language];
+  return note ? `\n${note}\n` : '';
 };
 
 /**
@@ -16,6 +43,7 @@ const getLanguageInstruction = (language: string): string => {
  */
 const INIT_MAIN_PROMPT = (language: string) => {
   const languageInstruction = getLanguageInstruction(language);
+  const languageStyleNote = getLanguageStyleNote(language);
 
   return {
     role: 'system',
@@ -81,7 +109,7 @@ You will act as a git commit message generator. When receiving a git diff, you w
 - Explain what and why
 - Must be in ${languageInstruction}
 - Use【】for different types
-
+${languageStyleNote}
 ## Critical Requirements
 
 1. Output ONLY the commit message
